@@ -1,0 +1,77 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  name      String
+  phone     String?
+  role      String     @default("client")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  reservas  Reserva[]
+}
+
+model Vehiculo {
+  id        String     @id @default(cuid())
+  modelo    String
+  capacidad Int
+  precioDia Float
+  foto      String?
+  activo    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  reservas  Reserva[]
+  presupuestos Presupuesto[]
+}
+
+model Reserva {
+  id            String     @id @default(cuid())
+  usuarioId     String
+  usuario       User       @relation(fields: [usuarioId], references: [id])
+  vehiculoId    String
+  vehiculo      Vehiculo   @relation(fields: [vehiculoId], references: [id])
+  fechaInicio   DateTime
+  fechaFin      DateTime
+  kmInicial     Int
+  kmFinal       Int?
+  kmExtra       Int?
+  precioDiario  Float
+  precioKmExtra Float?
+  precioTotal   Float?
+  estado        String     @default("pendiente")
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Consulta {
+  id        String   @id @default(cuid())
+  nombre    String
+  email     String
+  telefono  String
+  mensaje   String
+  respondida Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Presupuesto {
+  id           String   @id @default(cuid())
+  usuarioId    String?
+  vehiculoId   String
+  vehiculo     Vehiculo @relation(fields: [vehiculoId], references: [id])
+  fechaInicio  DateTime
+  fechaFin     DateTime
+  kmEstimado   Int
+  precioDiario Float
+  precioTotal  Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
